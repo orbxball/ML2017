@@ -12,9 +12,10 @@ def ensure_dir(file_path):
 def extract_feature(M, features):
   x_data = []
   y_data = []
-  for i in range(M.shape[1]-10+1):
-    x_data.append(M[features, i:i+9].flatten().astype("float"))
-    y_data.append(float(M[9, i+9]))
+  for month in range(M.shape[0]):
+    for i in range(M.shape[2]-10+1):
+      x_data.append(M[month, features, i:i+9].flatten().astype("float"))
+      y_data.append(float(M[month, 9, i+9]))
   return x_data, y_data
 
 # Start Program
@@ -23,8 +24,8 @@ infile1, infile2, outfile = sys.argv[1], sys.argv[2], sys.argv[3]
 # preprocessing on infile1
 M = pd.read_csv(infile1, encoding='big5').as_matrix() #shape: (4320, 27)
 M = M[:, 3:] #shape: (4320, 24)
-M = np.reshape(M, (-1, 18, 24)) #shape: (240, 18, 24)
-M = M.swapaxes(0, 1).reshape(18, -1) #shape: (18, 5670)
+M = np.reshape(M, (12, -1, 18, 24)) #shape: (12, 20, 18, 24)
+M = M.swapaxes(1, 2).reshape(12, 18, -1) #shape: (12, 18, 480)
 
 # extract feature into x_data, y_data
 feature_sieve = [i for i in range(0, 18) if i != 10]
@@ -34,7 +35,7 @@ x_data, y_data = extract_feature(M, feature_sieve)
 b = 0.0
 w = np.zeros((1, len(feature_sieve)*9))
 lr = 2e-10
-epoch = 10000
+epoch = 20000
 
 prev_res = 1e10
 for e in range(epoch):
