@@ -16,7 +16,7 @@ def extract_feature(M, features):
     for i in range(M.shape[2]-10+1):
       x_data.append(M[month, features, i:i+9].flatten().astype("float"))
       y_data.append(float(M[month, 9, i+9]))
-  return x_data, y_data
+  return np.array(x_data), np.array(y_data)
 
 # Start Program
 infile1, infile2, outfile = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -31,33 +31,34 @@ for month in range(12):
   M[month, 10, :] = np.array(list(map(lambda i: i if i != 'NR' else '-1', M[month, 10, :])))
 
 
-# extract feature into x_data, y_data
+# extract feature into x_data <shape:(5652, 9*18)>, y_data <shape:(5652,)>
 feature_sieve = [i for i in range(0, 18)]
 x_data, y_data = extract_feature(M, feature_sieve)
 
 # ydata = b + w * xdata
 b = 0.0
-w = np.zeros((1, len(feature_sieve)*9))
+w = np.zeros(len(feature_sieve)*9)
 lr = 3e-10
 epoch = 100000
 
 prev_res = 1e10
 for e in range(epoch):
   b_grad = 0.0
-  w_grad = np.zeros((1, len(feature_sieve)*9))
+  w_grad = np.zeros(len(feature_sieve)*9)
   res = 0.0
-  for n in range(len(x_data)):
-    b_grad = b_grad  - 2*(y_data[n] - b - np.dot(w, x_data[n]))*1
-    w_grad = w_grad  - 2*(y_data[n] - b - np.dot(w, x_data[n]))*x_data[n]
-    res += (y_data[n] - b - np.dot(w, x_data[n]))**2
+
+  error = y_data - b - np.dot(x_data, w) #shape: (5652,)
+
+  b_grad = b_grad - 2*np.sum(error)*1 #shape: ()
+  w_grad = w_grad - 2*np.dot(error, x_data) #shape: (162,)
+  res = np.mean(np.square(error))
 
   # Print loss
-  print('epoch:{}\n Loss:{}'.format(e, res/len(x_data)))
+  if e % 100 == 0:
+    print('epoch:{}\n Loss:{}'.format(e, res))
 
-  tmp = prev_res - res/len(x_data)
-  if tmp[0] < 1e-8: break
-
-  prev_res = res/len(x_data)
+  if prev_res - res < 1e-8: break
+  prev_res = res
 
   # Update parameters.
   b = b - lr * b_grad
@@ -72,8 +73,8 @@ ensure_dir(outfile)
 ## save the parameter b, w
 para = outfile.replace('csv', 'para')
 with open(para, 'w+') as f:
-  f.write('{}\n{}\n'.format(b[0], list(map(lambda x: float(x), w.flatten()))))
-sys.exit(-1)
+  f.write('{}\n'.format(b))
+  f.write('{}\n'.format(','.join(list(map(lambda x: str(x), w.flatten())))))
 
 with open(outfile, 'w+') as f:
   f.write('id,value\n')
@@ -87,5 +88,5 @@ with open(outfile, 'w+') as f:
     modified_sieve = [n+i for n in feature_sieve]
     X = M[modified_sieve, 2:].flatten().astype("float")
     y = M[i, 0]
-    f.write('{},{}\n'.format(y, (b + np.dot(w, X))[0]))
+    f.write('{},{}\n'.format(y, b + np.dot(w, X)))
     i += 18
