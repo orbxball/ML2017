@@ -26,16 +26,20 @@ M = pd.read_csv(infile1, encoding='big5').as_matrix() #shape: (4320, 27)
 M = M[:, 3:] #shape: (4320, 24)
 M = np.reshape(M, (12, -1, 18, 24)) #shape: (12, 20, 18, 24)
 M = M.swapaxes(1, 2).reshape(12, 18, -1) #shape: (12, 18, 480)
+## map 'NR' -> '-1'
+for month in range(12):
+  M[month, 10, :] = np.array(list(map(lambda i: i if i != 'NR' else '-1', M[month, 10, :])))
+
 
 # extract feature into x_data, y_data
-feature_sieve = [i for i in range(0, 18) if i != 10]
+feature_sieve = [i for i in range(0, 18)]
 x_data, y_data = extract_feature(M, feature_sieve)
 
 # ydata = b + w * xdata
 b = 0.0
 w = np.zeros((1, len(feature_sieve)*9))
-lr = 2e-10
-epoch = 20000
+lr = 3e-10
+epoch = 100000
 
 prev_res = 1e10
 for e in range(epoch):
@@ -65,12 +69,21 @@ for e in range(epoch):
 ## check the folder of out.csv is exist; otherwise, make it
 ensure_dir(outfile)
 
+## save the parameter b, w
+para = outfile.replace('csv', 'para')
+with open(para, 'w+') as f:
+  f.write('{}\n{}\n'.format(b[0], list(map(lambda x: float(x), w.flatten()))))
+sys.exit(-1)
+
 with open(outfile, 'w+') as f:
   f.write('id,value\n')
   M = pd.read_csv(infile2, header=None, encoding='big5').as_matrix()
 
   i = 0
   while i < M.shape[0]:
+    ## map 'NR' -> '-1'
+    M[i+10, :] = np.array(list(map(lambda x: x if x != 'NR' else '-1', M[i+10, :])))
+
     modified_sieve = [n+i for n in feature_sieve]
     X = M[modified_sieve, 2:].flatten().astype("float")
     y = M[i, 0]
