@@ -38,31 +38,36 @@ x_data, y_data = extract_feature(M, feature_sieve)
 # ydata = b + w * xdata
 b = 0.0
 w = np.zeros(len(feature_sieve)*9)
-lr = 3e-10
-epoch = 100000
+lr = 5e-3
+epoch = 200000
+b_lr = 0.0
+w_lr = np.zeros(len(feature_sieve)*9)
 
-prev_res = 1e10
+prev_loss = 1e10
 for e in range(epoch):
   b_grad = 0.0
   w_grad = np.zeros(len(feature_sieve)*9)
-  res = 0.0
+  loss = 0.0
 
+  # Calculate the value of the loss function
   error = y_data - b - np.dot(x_data, w) #shape: (5652,)
 
+  # Calculate gradient
   b_grad = b_grad - 2*np.sum(error)*1 #shape: ()
   w_grad = w_grad - 2*np.dot(error, x_data) #shape: (162,)
-  res = np.mean(np.square(error))
+  b_lr = b_lr + b_grad**2
+  w_lr = w_lr + w_grad**2
+  loss = np.mean(np.square(error))
+
+  # Update parameters.
+  b = b - lr/np.sqrt(b_lr) * b_grad
+  w = w - lr/np.sqrt(w_lr) * w_grad
 
   # Print loss
   if e % 100 == 0:
-    print('epoch:{}\n Loss:{}'.format(e, res))
-
-  if prev_res - res < 1e-8: break
-  prev_res = res
-
-  # Update parameters.
-  b = b - lr * b_grad
-  w = w - lr * w_grad
+    print('epoch:{}\n Loss:{}'.format(e, loss))
+  if prev_loss - loss < 1e-8: break
+  prev_loss = loss
 
 
 # Test
