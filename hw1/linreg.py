@@ -34,15 +34,15 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*18)>, y_data <shape:(5652,)>
-feature_sieve = [i for i in range(18)]
-square_sieve = []
+feature_sieve = [8, 9, 10, 15, 16]
+square_sieve = [8, 9, 10, 15, 16]
 length = len(feature_sieve) + len(square_sieve)
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
 
 # ydata = b + w * xdata
 b = 0.0
 w = np.zeros(length*9)
-lr = 0.5
+lr = 1e2
 epoch = 200000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
