@@ -16,7 +16,7 @@ def extract_feature(M, features, squares):
     for i in range(M.shape[2]-10+1):
       X = M[month, features, i:i+9].flatten()
       Y = M[month, squares, i:i+9].flatten()
-      Z = np.concatenate((X, Y), axis=0)
+      Z = np.concatenate((X, Y**2), axis=0)
       x_data.append(Z)
       y_data.append(M[month, 9, i+9])
   return np.array(x_data), np.array(y_data)
@@ -35,15 +35,20 @@ M = M.astype(float)
 
 # extract feature into x_data <shape:(5652, 9*18)>, y_data <shape:(5652,)>
 feature_sieve = [8, 9, 10, 15, 16]
-square_sieve = [8, 9, 10, 15, 16]
+square_sieve = [8, 9]
 length = len(feature_sieve) + len(square_sieve)
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
+
+# scaling
+mean = np.mean(x_data, axis=0)
+std = np.std(x_data, axis=0)
+x_data = (x_data - mean) / (std + 1e-20)
 
 # ydata = b + w * xdata
 b = 0.0
 w = np.zeros(length*9)
 lr = 1e2
-epoch = 200000
+epoch = 50000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
@@ -92,12 +97,13 @@ with open(outfile, 'w+') as f:
   M[M == 'NR'] = '0.0'
   M = M.astype(float)
 
-  selected = [i for i in feature_sieve]
-  square_selected = [i for i in square_sieve]
+  selected = feature_sieve
+  square_selected = square_sieve
 
   f.write('id,value\n')
   for i in range(M.shape[0]):
     X = M[i, selected, :].flatten()
     Y = M[i, square_selected, :].flatten()
-    Z = np.concatenate((X, Y), axis=0)
+    Z = np.concatenate((X, Y**2), axis=0)
+    Z = (Z - mean) / (std + 1e-20)
     f.write('id_{},{}\n'.format(i, b + np.dot(w, Z)))
