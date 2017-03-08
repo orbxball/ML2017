@@ -33,7 +33,7 @@ M[M == 'NR'] = '0.0'
 M = M.astype(float)
 
 
-# extract feature into x_data <shape:(5652, 9*18)>, y_data <shape:(5652,)>
+# extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
 feature_sieve = [8, 9, 10, 15, 16]
 square_sieve = [8, 9]
 length = len(feature_sieve) + len(square_sieve)
@@ -52,18 +52,13 @@ epoch = 50000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
-prev_loss = 1e10
 for e in range(epoch):
-  b_grad = 0.0
-  w_grad = np.zeros(length*9)
-  loss = 0.0
-
   # Calculate the value of the loss function
   error = y_data - b - np.dot(x_data, w) #shape: (5652,)
 
   # Calculate gradient
-  b_grad = b_grad - 2*np.sum(error)*1 #shape: ()
-  w_grad = w_grad - 2*np.dot(error, x_data) #shape: (162,)
+  b_grad = -2*np.sum(error)*1 #shape: ()
+  w_grad = -2*np.dot(error, x_data) #shape: (162,)
   b_lr = b_lr + b_grad**2
   w_lr = w_lr + w_grad**2
   loss = np.mean(np.square(error))
@@ -75,8 +70,6 @@ for e in range(epoch):
   # Print loss
   if (e+1) % 1000 == 0:
     print('epoch:{}\n Loss:{}'.format(e+1, np.sqrt(loss)))
-  # if prev_loss - loss < 1e-8: break
-  # prev_loss = loss
 
 
 # Test
