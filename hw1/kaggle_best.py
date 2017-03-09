@@ -44,33 +44,13 @@ mean = np.mean(x_data, axis=0)
 std = np.std(x_data, axis=0)
 x_data = (x_data - mean) / (std + 1e-20)
 
-# ydata = b + w * xdata
-b = 0.0
-w = np.zeros(length*9)
-lr = 1e2
-epoch = 20000
-b_lr = 0.0
-w_lr = np.zeros(length*9)
+# add a column for x_data at the front
+one = np.ones((x_data.shape[0], 1))
+x_data = np.concatenate((one, x_data), axis=1)
 
-for e in range(epoch):
-  # Calculate the value of the loss function
-  error = y_data - b - np.dot(x_data, w) #shape: (5652,)
-
-  # Calculate gradient
-  b_grad = -2*np.sum(error)*1 #shape: ()
-  w_grad = -2*np.dot(error, x_data) #shape: (162,)
-  b_lr = b_lr + b_grad**2
-  w_lr = w_lr + w_grad**2
-  loss = np.mean(np.square(error))
-
-  # Update parameters.
-  b = b - lr/np.sqrt(b_lr) * b_grad
-  w = w - lr/np.sqrt(w_lr) * w_grad
-
-  # Print loss
-  if (e+1) % 1000 == 0:
-    print('epoch:{}\n Loss:{}'.format(e+1, np.sqrt(loss)))
-
+# Solve least square error by formula
+ans = np.linalg.lstsq(x_data, y_data)
+W = ans[0]
 
 # Test
 
@@ -79,9 +59,7 @@ ensure_dir(outfile)
 
 ## save the parameter b, w
 para = outfile.replace('csv', 'para')
-with open(para, 'w+') as f:
-  f.write('{}\n'.format(b))
-  f.write('{}\n'.format(','.join(list(map(lambda x: str(x), w.flatten())))))
+np.savetxt(para, W.reshape((1, -1)), delimiter=',')
 
 with open(outfile, 'w+') as f:
   M = pd.read_csv(infile2, header=None, encoding='big5').as_matrix()
@@ -99,4 +77,9 @@ with open(outfile, 'w+') as f:
     Y = M[i, square_selected, :].flatten()
     Z = np.concatenate((X, Y**2), axis=0)
     Z = (Z - mean) / (std + 1e-20)
-    f.write('id_{},{}\n'.format(i, b + np.dot(w, Z)))
+
+    # add 1 row for Z
+    one = np.array([1.0])
+    Z = np.concatenate((one, Z), axis=0)
+
+    f.write('id_{},{}\n'.format(i, np.dot(W, Z)))
