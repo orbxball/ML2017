@@ -79,9 +79,8 @@ ensure_dir(outfile)
 
 ## save the parameter b, w
 para = outfile.replace('csv', 'para')
-with open(para, 'w+') as f:
-  f.write('{}\n'.format(b))
-  f.write('{}\n'.format(','.join(list(map(lambda x: str(x), w.flatten())))))
+W = np.concatenate((b.reshape(-1), w), axis=0)
+np.savetxt(para, W.reshape((1, -1)), delimiter=',')
 
 with open(outfile, 'w+') as f:
   M = pd.read_csv(infile2, header=None, encoding='big5').as_matrix()
