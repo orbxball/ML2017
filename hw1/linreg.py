@@ -34,7 +34,7 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
-feature_sieve = [8, 9, 10, 15, 16]
+feature_sieve = [7, 8, 9, 10, 14, 15, 16, 17]
 square_sieve = [8, 9]
 length = len(feature_sieve) + len(square_sieve)
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
@@ -48,7 +48,7 @@ x_data = (x_data - mean) / (std + 1e-20)
 b = 0.0
 w = np.zeros(length*9)
 lr = 1e2
-epoch = 50000
+epoch = 20000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
