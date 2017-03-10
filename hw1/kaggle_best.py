@@ -34,8 +34,8 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
-feature_sieve = [7, 8, 9, 10, 14, 15, 16, 17]
-square_sieve = [8, 9]
+feature_sieve = [2, 7, 8, 9, 10, 12, 14, 17]
+square_sieve = [2, 7, 8, 9, 10, 12, 14, 17]
 length = len(feature_sieve) + len(square_sieve)
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
 
@@ -43,6 +43,14 @@ x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
 mean = np.mean(x_data, axis=0)
 std = np.std(x_data, axis=0)
 x_data = (x_data - mean) / (std + 1e-20)
+
+#valid data
+valid_num = 500
+permu = np.random.permutation(x_data.shape[0])
+x_data_valid = x_data[permu[:valid_num], :]
+y_data_valid = y_data[permu[:valid_num]]
+x_data = x_data[permu[valid_num:], :]
+y_data = y_data[permu[valid_num:]]
 
 # ydata = b + w * xdata
 b = 0.0
@@ -52,9 +60,11 @@ epoch = 20000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
+prev_valid_loss, counter, limitation = 1e20, 0, 3
 for e in range(epoch):
   # Calculate the value of the loss function
-  error = y_data - b - np.dot(x_data, w) #shape: (5652,)
+  error = y_data - b - np.dot(x_data, w) #shape: (5652 - valid_num,)
+  error2 = y_data_valid - b - np.dot(x_data_valid, w) #shape: (valid_num,)
 
   # Calculate gradient
   b_grad = -2*np.sum(error)*1 #shape: ()
@@ -62,6 +72,7 @@ for e in range(epoch):
   b_lr = b_lr + b_grad**2
   w_lr = w_lr + w_grad**2
   loss = np.mean(np.square(error))
+  valid_loss = np.mean(np.square(error2))
 
   # Update parameters.
   b = b - lr/np.sqrt(b_lr) * b_grad
@@ -69,7 +80,14 @@ for e in range(epoch):
 
   # Print loss
   if (e+1) % 1000 == 0:
-    print('epoch:{}\n Loss:{}'.format(e+1, np.sqrt(loss)))
+    if valid_loss - prev_valid_loss > 0: counter += 1
+    if counter >= limitation:
+      print('It\'s over the limitation times!!!')
+      break
+    prev_valid_loss = valid_loss
+
+    print('epoch:{}\n Loss:{}\n valid:{}\n counter:{}'.format(e+1, np.sqrt(loss), np.sqrt(valid_loss), counter))
+
 
 
 # Test
