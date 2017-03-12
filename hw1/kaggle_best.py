@@ -6,6 +6,7 @@ import numpy as np
 
 def ensure_dir(file_path):
   directory = os.path.dirname(file_path)
+  if len(directory) == 0: return
   if not os.path.exists(directory):
     os.makedirs(directory)
 
@@ -16,7 +17,7 @@ def extract_feature(M, features, squares):
     for i in range(M.shape[2]-10+1):
       X = M[month, features, i:i+9].flatten()
       Y = M[month, squares, i:i+9].flatten()
-      Z = np.concatenate((X, Y**2), axis=0)
+      Z = np.concatenate((X, Y**3), axis=0)
       x_data.append(Z)
       y_data.append(M[month, 9, i+9])
   return np.array(x_data), np.array(y_data)
@@ -45,7 +46,7 @@ std = np.std(x_data, axis=0)
 x_data = (x_data - mean) / (std + 1e-20)
 
 #valid data
-valid_num = 500
+valid_num = 2000
 permu = np.random.permutation(x_data.shape[0])
 x_data_valid = x_data[permu[:valid_num], :]
 y_data_valid = y_data[permu[:valid_num]]
@@ -56,7 +57,7 @@ y_data = y_data[permu[valid_num:]]
 b = 0.0
 w = np.zeros(length*9)
 lr = 1e2
-epoch = 20000
+epoch = 5000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
@@ -95,6 +96,10 @@ for e in range(epoch):
 ## check the folder of out.csv is exist; otherwise, make it
 ensure_dir(outfile)
 
+## save the permutation
+permu_file = outfile.replace('csv', 'permu')
+np.savetxt(permu_file, permu.reshape((1, -1)), delimiter=',')
+
 ## save the parameter b, w
 para = outfile.replace('csv', 'para')
 W = np.concatenate((b.reshape(-1), w), axis=0)
@@ -114,6 +119,6 @@ with open(outfile, 'w+') as f:
   for i in range(M.shape[0]):
     X = M[i, selected, :].flatten()
     Y = M[i, square_selected, :].flatten()
-    Z = np.concatenate((X, Y**2), axis=0)
+    Z = np.concatenate((X, Y**3), axis=0)
     Z = (Z - mean) / (std + 1e-20)
     f.write('id_{},{}\n'.format(i, b + np.dot(w, Z)))
