@@ -25,6 +25,7 @@ def extract_feature(M, features, cubics):
 
 # Start Program
 infile1, infile2, outfile = sys.argv[1], sys.argv[2], sys.argv[3]
+para_permu = 'para/test2.permu'
 
 # preprocessing on infile1
 M = pd.read_csv(infile1, encoding='big5').as_matrix() #shape: (4320, 27)
@@ -48,7 +49,11 @@ x_data = (x_data - mean) / (std + 1e-20)
 
 #valid data
 valid_num = 1000
-permu = np.random.permutation(x_data.shape[0])
+try:
+  permu = np.loadtxt(para_permu, delimiter=',')
+  permu = permu.astype(int)
+except:
+  permu = np.random.permutation(x_data.shape[0])
 x_data_valid = x_data[permu[:valid_num], :]
 y_data_valid = y_data[permu[:valid_num]]
 x_data = x_data[permu[valid_num:], :]
