@@ -37,7 +37,7 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
-feature_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
+feature_sieve = [2, 7, 8, 9, 10, 12, 14, 17]
 cubic_sieve = [8, 9]
 length = len(feature_sieve) + len(cubic_sieve) + 1
 x_data, y_data = extract_feature(M, feature_sieve, cubic_sieve)
@@ -48,7 +48,7 @@ std = np.std(x_data, axis=0)
 x_data = (x_data - mean) / (std + 1e-20)
 
 #valid data
-valid_num = 1000
+valid_num = 1500
 try:
   permu = np.loadtxt(para_permu, delimiter=',')
   permu = permu.astype(int)
