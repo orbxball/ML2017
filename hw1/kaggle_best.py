@@ -10,14 +10,15 @@ def ensure_dir(file_path):
   if not os.path.exists(directory):
     os.makedirs(directory)
 
-def extract_feature(M, features, squares):
+def extract_feature(M, features, cubics):
   x_data = []
   y_data = []
   for month in range(M.shape[0]):
     for i in range(M.shape[2]-10+1):
       X = M[month, features, i:i+9].flatten()
-      Y = M[month, squares, i:i+9].flatten()
-      Z = np.concatenate((X, Y**3), axis=0)
+      Y = M[month, cubics, i:i+9].flatten()
+      W = np.multiply(M[month, 9, i:i+9], M[month, 7, i:i+9])
+      Z = np.concatenate((X, Y**3, W), axis=0)
       x_data.append(Z)
       y_data.append(M[month, 9, i+9])
   return np.array(x_data), np.array(y_data)
@@ -35,10 +36,10 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
-feature_sieve = [2, 7, 8, 9, 10, 12, 14, 17]
-square_sieve = [2, 7, 8, 9, 10, 12, 14, 17]
-length = len(feature_sieve) + len(square_sieve)
-x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
+feature_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
+cubic_sieve = [8, 9]
+length = len(feature_sieve) + len(cubic_sieve) + 1
+x_data, y_data = extract_feature(M, feature_sieve, cubic_sieve)
 
 # scaling
 mean = np.mean(x_data, axis=0)
@@ -46,7 +47,7 @@ std = np.std(x_data, axis=0)
 x_data = (x_data - mean) / (std + 1e-20)
 
 #valid data
-valid_num = 2000
+valid_num = 1000
 permu = np.random.permutation(x_data.shape[0])
 x_data_valid = x_data[permu[:valid_num], :]
 y_data_valid = y_data[permu[:valid_num]]
@@ -113,12 +114,13 @@ with open(outfile, 'w+') as f:
   M = M.astype(float)
 
   selected = feature_sieve
-  square_selected = square_sieve
+  cubic_selected = cubic_sieve
 
   f.write('id,value\n')
   for i in range(M.shape[0]):
     X = M[i, selected, :].flatten()
-    Y = M[i, square_selected, :].flatten()
-    Z = np.concatenate((X, Y**3), axis=0)
+    Y = M[i, cubic_selected, :].flatten()
+    W = np.multiply(M[i, 9, :], M[i, 7, :])
+    Z = np.concatenate((X, Y**3, W), axis=0)
     Z = (Z - mean) / (std + 1e-20)
     f.write('id_{},{}\n'.format(i, b + np.dot(w, Z)))
