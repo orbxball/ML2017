@@ -6,6 +6,7 @@ import numpy as np
 
 def ensure_dir(file_path):
   directory = os.path.dirname(file_path)
+  if len(directory) == 0: return
   if not os.path.exists(directory):
     os.makedirs(directory)
 
@@ -34,8 +35,8 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
-feature_sieve = [7, 8, 9, 10, 14, 15, 16, 17]
-square_sieve = [8, 9]
+feature_sieve = [2, 7, 8, 9, 10, 14, 15, 16, 17]
+square_sieve = []
 length = len(feature_sieve) + len(square_sieve)
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve)
 
