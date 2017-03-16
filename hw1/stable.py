@@ -47,13 +47,6 @@ mean = np.mean(x_data, axis=0)
 std = np.std(x_data, axis=0)
 x_data = (x_data - mean) / (std + 1e-20)
 
-# validation
-valid_num = -20
-x_data_valid = x_data[valid_num:, :]
-y_data_valid = y_data[valid_num:]
-x_data = x_data[:valid_num, :]
-y_data = y_data[:valid_num]
-
 # ydata = b + w * xdata
 b = 0.0
 w = np.zeros(length*9)
@@ -61,20 +54,17 @@ lr = 1e2
 epoch = 20000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
-lamb = 1e-3
 
 for e in range(epoch):
   # Calculate the value of the loss function
   error = y_data - b - np.dot(x_data, w) #shape: (5652,)
-  error2 = y_data_valid - b - np.dot(x_data_valid, w) #shape: (5652,)
 
   # Calculate gradient
   b_grad = -2*np.sum(error)*1 #shape: ()
-  w_grad = -2*np.dot(error, x_data) + 2*lamb*w #shape: (162,)
+  w_grad = -2*np.dot(error, x_data) #shape: (162,)
   b_lr = b_lr + b_grad**2
   w_lr = w_lr + w_grad**2
-  loss = np.mean(np.square(error) + np.sum(lamb*(w**2)))
-  valid_loss = np.mean(np.square(error2) + np.sum(lamb*(w**2)))
+  loss = np.mean(np.square(error))
 
   # Update parameters.
   b = b - lr/np.sqrt(b_lr) * b_grad
@@ -82,7 +72,7 @@ for e in range(epoch):
 
   # Print loss
   if (e+1) % 1000 == 0:
-    print('epoch:{}\n Loss:{} valid:{}\n'.format(e+1, np.sqrt(loss), np.sqrt(valid_loss)))
+    print('epoch:{}\n Loss:{}'.format(e+1, np.sqrt(loss)))
 
 
 # Test
