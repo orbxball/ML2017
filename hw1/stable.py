@@ -18,7 +18,8 @@ def extract_feature(M, features, squares, cubics):
       X = M[month, features, i:i+9].flatten()
       Y = M[month, squares, i:i+9].flatten()
       W = M[month, cubics, i:i+9].flatten()
-      Z = np.concatenate((X, Y**2, W**3), axis=0)
+      R = np.multiply(M[month, 9, i:i+9], M[month, 7, i:i+9])
+      Z = np.concatenate((X, Y**2, W**3, R), axis=0)
       x_data.append(Z)
       y_data.append(M[month, 9, i+9])
   return np.array(x_data), np.array(y_data)
@@ -36,22 +37,22 @@ M = M.astype(float)
 
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
-feature_sieve = [2, 7, 8, 9, 10, 14, 15, 16, 17]
-square_sieve = [8, 9]
-cubic_sieve = [8, 9]
-length = len(feature_sieve) + len(square_sieve) + len(cubic_sieve)
+feature_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
+square_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
+cubic_sieve = [9]
+length = len(feature_sieve) + len(square_sieve) + len(cubic_sieve) + 1
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve, cubic_sieve)
 
 # scaling
-mean = np.mean(x_data, axis=0)
-std = np.std(x_data, axis=0)
-x_data = (x_data - mean) / (std + 1e-20)
+maxnum = np.max(x_data, axis=0)
+minnum = np.min(x_data, axis=0)
+x_data = (x_data - minnum) / (maxnum - minnum + 1e-20)
 
 # ydata = b + w * xdata
 b = 0.0
-w = np.zeros(length*9)
-lr = 1e2
-epoch = 20000
+w = np.ones(length*9)
+lr = 1
+epoch = 50000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
@@ -102,6 +103,7 @@ with open(outfile, 'w+') as f:
     X = M[i, selected, :].flatten()
     Y = M[i, square_selected, :].flatten()
     W = M[i, cubic_selected, :].flatten()
-    Z = np.concatenate((X, Y**2, W**3), axis=0)
-    Z = (Z - mean) / (std + 1e-20)
+    R = np.multiply(M[i, 9, :], M[i, 7, :])
+    Z = np.concatenate((X, Y**2, W**3, R), axis=0)
+    Z = (Z - minnum) / (maxnum - minnum + 1e-20)
     f.write('id_{},{}\n'.format(i, b + np.dot(w, Z)))
