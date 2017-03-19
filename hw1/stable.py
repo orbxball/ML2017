@@ -14,6 +14,7 @@ def extract_feature(M, features, squares, cubics):
   x_data = []
   y_data = []
   for month in range(M.shape[0]):
+    if month == 6: continue
     for i in range(M.shape[2]-10+1):
       X = M[month, features, i:i+9].flatten()
       Y = M[month, squares, i:i+9].flatten()
@@ -39,7 +40,7 @@ M = M.astype(float)
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
 feature_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
 square_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
-cubic_sieve = [9]
+cubic_sieve = []
 length = len(feature_sieve) + len(square_sieve) + len(cubic_sieve) + 1
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve, cubic_sieve)
 
@@ -52,7 +53,7 @@ x_data = (x_data - minnum) / (maxnum - minnum + 1e-20)
 b = 0.0
 w = np.ones(length*9)
 lr = 1
-epoch = 50000
+epoch = 20000
 b_lr = 0.0
 w_lr = np.zeros(length*9)
 
