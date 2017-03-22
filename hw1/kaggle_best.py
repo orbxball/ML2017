@@ -39,7 +39,7 @@ M = M.astype(float)
 
 # extract feature into x_data <shape:(5652, 9*len)>, y_data <shape:(5652,)>
 feature_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
-square_sieve = [2, 7, 8, 9, 10, 12, 14, 15, 16, 17]
+square_sieve = [2, 7, 8, 9, 10, 12, 16, 17]
 cubic_sieve = []
 length = len(feature_sieve) + len(square_sieve) + len(cubic_sieve) + 1
 x_data, y_data = extract_feature(M, feature_sieve, square_sieve, cubic_sieve)
