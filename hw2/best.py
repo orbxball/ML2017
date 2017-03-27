@@ -21,6 +21,13 @@ Y_train = pd.read_csv(Y_train, header=None).as_matrix() #shape: (32561, 1)
 X_test = pd.read_csv(X_test).as_matrix() #shape: (16281, 106)
 Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
 
+## X_train select
+square = [0, 1, 3, 4, 5]
+cubic = [0, 1, 3, 4, 5]
+X_train = np.concatenate((X_train,
+                          X_train[:, square]**2,
+                          X_train[:, cubic]**3), axis=1)
+
 # scaling: only on features, not label
 maxnum = np.max(X_train, axis=0) #shape: (106,)
 minnum = np.min(X_train, axis=0) #shape: (106,)
@@ -30,7 +37,7 @@ X_train = (X_train - minnum) / (maxnum - minnum + 1e-100)
 b = 0.0
 w = np.ones(X_train.shape[1])
 lr = 5e-1
-epoch = 2800
+epoch = 10000
 b_lr = 0.0
 w_lr = np.zeros(X_train.shape[1])
 
@@ -76,6 +83,11 @@ with open(para, 'w+') as f:
 
 with open(outfile, 'w+') as file:
   file.write('id,label\n')
+
+  # X_test select
+  X_test = np.concatenate((X_test,
+                          X_test[:, square]**2,
+                          X_test[:, cubic]**3), axis=1)
   ans = []
   for i in range(X_test.shape[0]):
     Z = X_test[i]
