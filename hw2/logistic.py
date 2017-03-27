@@ -24,7 +24,7 @@ Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
 # scaling: only on features, not label
 maxnum = np.max(X_train, axis=0) #shape: (106,)
 minnum = np.min(X_train, axis=0) #shape: (106,)
-X_train = (X_train - minnum) / (maxnum - minnum + 1e-40)
+X_train = (X_train - minnum) / (maxnum - minnum + 1e-100)
 
 # initialize
 b = 0.0
@@ -47,7 +47,7 @@ for e in range(epoch):
   w_lr = w_lr + w_grad**2
 
   # calculate loss = cross entropy
-  loss = -np.sum(np.dot(Y_train, np.log(f+1e-40)) + np.dot(1-Y_train, 1-np.log(f+1e-40)))
+  loss = -np.mean(Y_train*np.log(f+1e-100) + (1-Y_train)*np.log(1-f+1e-100))
 
   # Update parameters.
   b = b - lr/np.sqrt(b_lr) * b_grad
@@ -79,7 +79,7 @@ with open(outfile, 'w+') as file:
   ans = []
   for i in range(X_test.shape[0]):
     Z = X_test[i]
-    Z = (Z - minnum) / (maxnum - minnum + 1e-40)
+    Z = (Z - minnum) / (maxnum - minnum + 1e-100)
     z = np.dot(w, Z) + b
     if (z >= 0):
       ans.append('{},{}'.format(i+1, 1))
