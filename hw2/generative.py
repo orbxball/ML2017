@@ -22,6 +22,12 @@ Y_train = pd.read_csv(Y_train, header=None).as_matrix() #shape: (32561, 1)
 X_test = pd.read_csv(X_test).as_matrix() #shape: (16281, 106)
 Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
 
+# scaling: only on features, not label
+mean = np.mean(X_train, axis=0) #shape: (106,)
+std = np.std(X_train, axis=0) #shape: (106,)
+X_train = (X_train - mean) / (std + 1e-100)
+X_test = (X_test - mean) / (std + 1e-100)
+
 # Seperate class A(1) & class B(0)
 Apicker = (Y_train == 1)
 Bpicker = (Y_train == 0)
