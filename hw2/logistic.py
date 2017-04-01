@@ -22,9 +22,9 @@ X_test = pd.read_csv(X_test).as_matrix() #shape: (16281, 106)
 Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
 
 # scaling: only on features, not label
-maxnum = np.max(X_train, axis=0) #shape: (106,)
-minnum = np.min(X_train, axis=0) #shape: (106,)
-X_train = (X_train - minnum) / (maxnum - minnum + 1e-100)
+mean = np.mean(X_train, axis=0) #shape: (106,)
+std = np.std(X_train, axis=0) #shape: (106,)
+X_train = (X_train - mean) / (std + 1e-100)
 
 # initialize
 b = 0.0
@@ -79,7 +79,7 @@ with open(outfile, 'w+') as file:
   ans = []
   for i in range(X_test.shape[0]):
     Z = X_test[i]
-    Z = (Z - minnum) / (maxnum - minnum + 1e-100)
+    Z = (Z - mean) / (std + 1e-100)
     z = np.dot(w, Z) + b
     if (z >= 0):
       ans.append('{},{}'.format(i+1, 1))
