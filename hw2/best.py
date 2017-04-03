@@ -12,6 +12,13 @@ def ensure_dir(file_path):
 def sigmoid(z):
   return 1 / (1 + np.exp(-1 * z))
 
+def makeValidation(X, Y):
+  valid_num = 6000
+  total_num = X.shape[0]
+  split = total_num - valid_num
+  return X_train[0:split, :], X_train[split:, :], Y[0:split], Y[split:]
+
+
 # Start Program
 X_train, Y_train = sys.argv[1], sys.argv[2]
 X_test, outfile = sys.argv[3], sys.argv[4]
@@ -33,6 +40,8 @@ X_train = np.concatenate((X_train,
 mean = np.mean(X_train, axis=0) #shape: (106,)
 std = np.std(X_train, axis=0) #shape: (106,)
 X_train = (X_train - mean) / (std + 1e-100)
+
+X_train, X_valid, Y_train, Y_valid = makeValidation(X_train, Y_train)
 
 # initialize
 b = 0.0
@@ -67,6 +76,13 @@ for e in range(epoch):
     f[f < 0.5] = 0
     acc = Y_train == f #shape: (32561,)
     print('epoch:{}\n Loss:{}\n Accuracy:{}%\n'.format(e+1, loss, np.sum(acc) * 100 / acc.shape[0]))
+
+    f_valid = sigmoid(np.dot(X_valid, w) + b)
+    valid_loss = -np.mean(Y_valid*np.log(f_valid+1e-100) + (1-Y_valid)*np.log(1-f_valid+1e-100))
+    f_valid[f_valid >= 0.5] = 1
+    f_valid[f_valid < 0.5] = 0
+    acc = Y_valid == f_valid
+    print(' Valid Loss:{}\n Valid Accuracy:{}%\n'.format(valid_loss, np.sum(acc) * 100 / acc.shape[0]))
 
 
 # Test
