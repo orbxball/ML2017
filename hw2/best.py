@@ -29,12 +29,13 @@ X_test = pd.read_csv(X_test).as_matrix() #shape: (16281, 106)
 Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
 
 ## X_train select
+one = [i for i in range(1, X_test.shape[1])]
 square = [0, 1, 3, 4, 5]
 cubic = [0, 1, 3, 4, 5]
-X_train = np.concatenate((X_train,
+X_train = np.concatenate((X_train[:, one],
                           X_train[:, square]**2,
                           X_train[:, cubic]**3,
-                          np.log(X_train[:, [0, 3]] + 1e-100)), axis=1)
+                          np.log(X_train[:, [3]] + 1e-100)), axis=1)
 
 # scaling: only on features, not label
 mean = np.mean(X_train, axis=0) #shape: (106,)
@@ -100,10 +101,10 @@ with open(outfile, 'w+') as file:
   file.write('id,label\n')
 
   # X_test select
-  X_test = np.concatenate((X_test,
+  X_test = np.concatenate((X_test[:, one],
                           X_test[:, square]**2,
                           X_test[:, cubic]**3,
-                          np.log(X_test[:, [0, 3]] + 1e-100)), axis=1)
+                          np.log(X_test[:, [3]] + 1e-100)), axis=1)
   ans = []
   for i in range(X_test.shape[0]):
     Z = X_test[i]
