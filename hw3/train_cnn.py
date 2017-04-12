@@ -3,8 +3,8 @@ import sys, os
 import numpy as np
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Dense, Activation, Flatten, Dropout
+from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D
 from keras import losses
 from keras import optimizers
 
@@ -13,9 +13,9 @@ height = width = 48
 num_classes = 7
 input_shape = (height, width, 1)
 batch_size = 32
-epochs = 5
+epochs = 20
 pool_size = (2, 2)
-model_name = 'cnn2.h5'
+model_name = 'cnn_d3.h5'
 isValid = 1
 
 # Read the train data
@@ -43,19 +43,17 @@ else:
 
 # Construct the model
 model = Sequential()
-model.add(Conv2D(25, (3, 3), input_shape=input_shape))
+model.add(Conv2D(25, (3, 3), activation='relu', input_shape=input_shape))
+model.add(Conv2D(50, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=pool_size))
-model.add(Conv2D(50, (3, 3)))
-model.add(MaxPooling2D(pool_size=pool_size))
-model.add(Conv2D(100, (3, 3)))
-model.add(MaxPooling2D(pool_size=pool_size))
+model.add(Dropout(0.25))
+model.add(Conv2D(50, (3, 3), activation='relu'))
+model.add(Conv2D(100, (3, 3), activation='relu'))
+model.add(AveragePooling2D(pool_size=pool_size))
+model.add(Dropout(0.25))
 model.add(Flatten())
-model.add(Dense(500))
-model.add(Activation('softplus'))
-model.add(Dense(100))
-model.add(Activation('softplus'))
-model.add(Dense(50))
-model.add(Activation('softplus'))
+model.add(Dense(500, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 model.summary()
