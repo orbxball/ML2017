@@ -14,7 +14,7 @@ def ensure_dir(file_path):
 height = width = 48
 num_classes = 7
 input_shape = (height, width, 1)
-model_name = 'try.h5'
+model_name = 'pre2.h5'
 
 # Read the test data
 with open(sys.argv[1], "r+") as f:
