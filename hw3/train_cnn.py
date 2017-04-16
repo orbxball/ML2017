@@ -15,9 +15,9 @@ height = width = 48
 num_classes = 7
 input_shape = (height, width, 1)
 batch_size = 128
-epochs = 50
+epochs = 30
 zoom_range = 0.05
-model_name = 'pre3.h5'
+model_name = 'pre4.h5'
 isValid = 1
 
 # Read the train data
@@ -61,18 +61,22 @@ model.add(Dropout(0.3))
 model.add(Conv2D(128, (3, 3), padding='same'))
 model.add(LeakyReLU(alpha=0.03))
 model.add(BatchNormalization())
-model.add(AveragePooling2D(pool_size=(2, 2), padding='same'))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
 model.add(Dropout(0.3))
 
 model.add(Conv2D(256, (3, 3), padding='same'))
 model.add(LeakyReLU(alpha=0.03))
 model.add(BatchNormalization())
-model.add(AveragePooling2D(pool_size=(2, 2), padding='same'))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
 model.add(Dropout(0.3))
 
 model.add(Flatten())
 
 model.add(Dense(512, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dropout(0.5))
+model.add(Dense(128, activation='relu'))
+model.add(BatchNormalization())
 model.add(Dropout(0.5))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
