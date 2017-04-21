@@ -3,6 +3,7 @@ import sys, os
 import numpy as np
 import keras
 from keras.models import load_model
+from keras.utils import plot_model
 
 def ensure_dir(file_path):
   directory = os.path.dirname(file_path)
@@ -14,7 +15,7 @@ def ensure_dir(file_path):
 height = width = 48
 num_classes = 7
 input_shape = (height, width, 1)
-model_name = 'pre5.h5'
+model_name = 'pre6.h5'
 
 # Read the test data
 with open(sys.argv[1], "r+") as f:
@@ -27,6 +28,9 @@ with open(sys.argv[1], "r+") as f:
 
 # Load model
 model = load_model(model_name)
+
+# Plot model
+plot_model(model,to_file='cnn_model.png')
 
 # Predict the test data
 X = X.reshape(X.shape[0], height, width, 1)
