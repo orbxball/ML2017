@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys, os
 import numpy as np
-import keras
 from keras.models import load_model
 from keras.utils import plot_model
 
@@ -30,7 +29,7 @@ with open(sys.argv[1], "r+") as f:
 model = load_model(model_name)
 
 # Plot model
-plot_model(model,to_file='cnn_model.png')
+# plot_model(model,to_file='cnn_model.png')
 
 # Predict the test data
 X = X.reshape(X.shape[0], height, width, 1)
