@@ -24,6 +24,7 @@ def read_pic(file, obj_size=10, pic_size=10):
 def save_img(data, filename='default', subplot=False, size=0):
   global width, height
 
+  print('Drawing {}...'.format(filename))
   if subplot:
     fig = plt.figure(figsize=(16, 16))
     for i in range(size):
@@ -54,8 +55,9 @@ def pca(x, face_size):
   return mu.reshape(width, height), weights, picked_faces
 
 
-def reconstruct(weights, eigen_faces, eigen_size=0):
+def reconstruct(mu, weights, eigen_faces, eigen_size=0):
   pics = np.dot(weights, eigen_faces)
+  pics += mu.flatten()
   save_img(pics, filename='original_eigen_{}.png'.format(eigen_size),
           subplot=True, size=pics.shape[0])
 
@@ -89,7 +91,7 @@ def main():
 
   # Reconstrcut by eigen faces
   mu, weights, eigen_faces = pca(pics_matrix, 5)
-  reconstruct(weights, eigen_faces, eigen_size=eigen_faces.shape[0])
+  reconstruct(mu, weights, eigen_faces, eigen_size=eigen_faces.shape[0])
 
   # Calculate the RSME
   min_size_of_eigen_faces = cal_error(pics_matrix, 0.01)
