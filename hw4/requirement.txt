@@ -1,0 +1,8 @@
+numpy
+scipy
+Pillow
+scikit-learn
+matplotlib==1.5.3
+Cython
+nltk
+adjustText
