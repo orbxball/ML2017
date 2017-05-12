@@ -90,19 +90,15 @@ def validate(model, sample_size):
 
 def test(model, test_data):
   ans = []
-  test_round_size = 10
-  total_avg = 0.0
   for i in test_data.keys():
     print('Predicting {}...'.format(i))
-    for j in range(test_round_size):
-      sample_test_data = sampling(test_data[i].shape[0], test_data[i])
-      distances, indices = NN(test_data[i], sample_test_data)
 
-      avg_d = np.mean(distances[:,1])
-      total_avg += avg_d
-      print('Round: {}, avg_d: {}'.format(j, avg_d))
-    total_avg /= test_round_size
-    predicted = get_index(total_avg, model) + 1
+    sample_test_data = sampling(test_data[i].shape[0], test_data[i])
+    distances, indices = NN(test_data[i], sample_test_data)
+
+    avg_d = np.mean(distances[:,1])
+
+    predicted = get_index(avg_d, model) + 1
 
     ans.append(np.log(predicted))
   return ans
