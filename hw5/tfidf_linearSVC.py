@@ -62,7 +62,10 @@ def main():
 
   ### Tokenize
   vectorizer = TfidfVectorizer(stop_words='english')
-  sequences = vectorizer.fit_transform(texts)
+  # vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=40000)
+  all_corpus = texts + test_texts
+  vectorizer.fit(all_corpus)
+  sequences = vectorizer.transform(texts)
   test_data = vectorizer.transform(test_texts)
 
   (x_train, y_train),(x_valid, y_valid) = validate(sequences, tags, valid_size)
