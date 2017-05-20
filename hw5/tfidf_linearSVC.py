@@ -1,7 +1,6 @@
 import sys, os
 import argparse
 import numpy as np
-from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -12,7 +11,7 @@ from sklearn.metrics import f1_score
 
 def read_data(file):
   print('Reading training data...')
-  tags, texts, nltk_train_word = [], [], []
+  tags, texts = [], []
   with open(file) as f:
     f.readline()
     for line in f:
@@ -22,25 +21,23 @@ def read_data(file):
       tags.append(tags_tmp)
       text = buf[2][1:]
       texts.append(text)
-      nltk_train_word += word_tokenize(text)
 
   mlb = MultiLabelBinarizer()
   tags = mlb.fit_transform(tags)
   print('Classes Number: {}'.format(len(mlb.classes_)))
-  return tags, texts, mlb, set(nltk_train_word)
+  return tags, texts, mlb
 
 
 def read_test(file):
   print('Reading test data...')
-  texts, nltk_test_word = [], []
+  texts = []
   with open(file) as f:
     next(f)
     for line in f:
       text = ','.join(line.split(',')[1:])
       texts.append(text)
-      nltk_test_word += word_tokenize(text)
 
-  return texts, set(nltk_test_word)
+  return texts
 
 
 def validate(X, Y, valid_size):
@@ -60,26 +57,11 @@ def ensure_dir(file_path):
 
 def main():
   ### read training data & testing data
-  tags, texts, mlb, train_word_set = read_data(train_path)
-  test_texts, test_word_set = read_test(test_path)
-
-  ### handling garbage words
-  word_set = train_word_set & test_word_set
-  for idx, paragraph in enumerate(texts):
-    tmp = []
-    for w in word_tokenize(paragraph):
-      if w in word_set: tmp.append(w)
-    paragraph = ' '.join(tmp)
-    texts[idx] = paragraph
-  for idx, paragraph in enumerate(test_texts):
-    tmp = []
-    for w in word_tokenize(paragraph):
-      if w in word_set: tmp.append(w)
-    paragraph = ' '.join(tmp)
-    test_texts[idx] = paragraph
+  tags, texts, mlb = read_data(train_path)
+  test_texts = read_test(test_path)
 
   ### Tokenize
-  vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=40000)
+  vectorizer = TfidfVectorizer(stop_words='english')
   sequences = vectorizer.fit_transform(texts)
   test_data = vectorizer.transform(test_texts)
 
@@ -125,7 +107,7 @@ if __name__ == '__main__':
   test_path = args.test
   output_path = args.output
   is_valid = args.valid
-  valid_size = -1
+  valid_size = -400
   max_vocab = 60000
 
   main()
