@@ -1,6 +1,7 @@
 import sys, os
 import argparse
 import numpy as np
+from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -11,37 +12,35 @@ from sklearn.metrics import f1_score
 
 def read_data(file):
   print('Reading training data...')
-  tags, texts = [], []
+  tags, texts, nltk_train_word = [], [], []
   with open(file) as f:
+    f.readline()
     for line in f:
-      buf = line.split('"')
-      if len(buf) < 3: continue
+      buf = line.split('"', 2)
 
       tags_tmp = buf[1].split(' ')
       tags.append(tags_tmp)
-      text = '"'.join(buf[2:])
-      texts.append(text[1:])
-
-  vectorizer = TfidfVectorizer(stop_words='english')
-  X = vectorizer.fit_transform(texts)
+      text = buf[2][1:]
+      texts.append(text)
+      nltk_train_word += word_tokenize(text)
 
   mlb = MultiLabelBinarizer()
   tags = mlb.fit_transform(tags)
   print('Classes Number: {}'.format(len(mlb.classes_)))
-  return tags, X, mlb, vectorizer
+  return tags, texts, mlb, set(nltk_train_word)
 
 
-def read_test(file, vectorizer):
+def read_test(file):
   print('Reading test data...')
-  texts = []
+  texts, nltk_test_word = [], []
   with open(file) as f:
     next(f)
     for line in f:
       text = ','.join(line.split(',')[1:])
       texts.append(text)
+      nltk_test_word += word_tokenize(text)
 
-  X = vectorizer.transform(texts)
-  return X
+  return texts, set(nltk_test_word)
 
 
 def validate(X, Y, valid_size):
@@ -60,14 +59,36 @@ def ensure_dir(file_path):
 
 
 def main():
-  tags, sequences, mlb, vectorizer = read_data(train)
-  test_data = read_test(test, vectorizer)
+  ### read training data & testing data
+  tags, texts, mlb, train_word_set = read_data(train_path)
+  test_texts, test_word_set = read_test(test_path)
+
+  ### handling garbage words
+  word_set = train_word_set & test_word_set
+  for idx, paragraph in enumerate(texts):
+    tmp = []
+    for w in word_tokenize(paragraph):
+      if w in word_set: tmp.append(w)
+    paragraph = ' '.join(tmp)
+    texts[idx] = paragraph
+  for idx, paragraph in enumerate(test_texts):
+    tmp = []
+    for w in word_tokenize(paragraph):
+      if w in word_set: tmp.append(w)
+    paragraph = ' '.join(tmp)
+    test_texts[idx] = paragraph
+
+  ### Tokenize
+  vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=40000)
+  sequences = vectorizer.fit_transform(texts)
+  test_data = vectorizer.transform(test_texts)
 
   (x_train, y_train),(x_valid, y_valid) = validate(sequences, tags, valid_size)
   print(x_train.shape)
   print(y_train.shape)
   print(x_valid.shape)
   print(y_valid.shape)
+
   linear_svc = OneVsRestClassifier(LinearSVC(C=1e-3, class_weight='balanced'))
   linear_svc.fit(x_train, y_train)
   y_train_predict = linear_svc.predict(x_train)
@@ -77,14 +98,14 @@ def main():
   # print(mlb.classes_)
 
   # Test data
-  ensure_dir(output)
+  ensure_dir(output_path)
   result = []
   for i, categories in enumerate(mlb.inverse_transform(predict)):
     ret = []
     for category in categories:
       ret.append(category)
     result.append('"{0}","{1}"'.format(i, " ".join(ret)))
-  with open(output, "w+") as f:
+  with open(output_path, "w+") as f:
     f.write('"id","tags"\n')
     f.write("\n".join(result))
 
@@ -100,11 +121,11 @@ if __name__ == '__main__':
   parser.add_argument('--valid', action='store_true')
   args = parser.parse_args()
 
-  train = args.train
-  test = args.test
-  output = args.output
+  train_path = args.train
+  test_path = args.test
+  output_path = args.output
   is_valid = args.valid
-  valid_size = -400
+  valid_size = -1
   max_vocab = 60000
 
   main()
