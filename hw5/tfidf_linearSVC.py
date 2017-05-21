@@ -7,6 +7,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.svm import LinearSVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import f1_score
+from sklearn.model_selection import cross_val_score
 
 
 def read_data(file):
@@ -36,7 +37,6 @@ def read_test(file):
     for line in f:
       text = ','.join(line.split(',')[1:])
       texts.append(text)
-
   return texts
 
 
@@ -61,24 +61,28 @@ def main():
   test_texts = read_test(test_path)
 
   ### Tokenize
-  vectorizer = TfidfVectorizer(stop_words='english')
-  # vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=40000)
+  # vectorizer = TfidfVectorizer(stop_words='english')
+  vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=40000, sublinear_tf=True)
   all_corpus = texts + test_texts
   vectorizer.fit(all_corpus)
   sequences = vectorizer.transform(texts)
   test_data = vectorizer.transform(test_texts)
 
-  (x_train, y_train),(x_valid, y_valid) = validate(sequences, tags, valid_size)
-  print(x_train.shape)
-  print(y_train.shape)
-  print(x_valid.shape)
-  print(y_valid.shape)
+  if is_valid:
+    (x_train, y_train),(x_valid, y_valid) = validate(sequences, tags, valid_size)
+  else:
+    x_train, y_train = sequences, test_data
 
-  linear_svc = OneVsRestClassifier(LinearSVC(C=1e-3, class_weight='balanced'))
+  linear_svc = OneVsRestClassifier(LinearSVC(C=5e-4, class_weight='balanced'))
+
+  scores = cross_val_score(linear_svc, x_train, y_train, cv=8, scoring='f1_samples', n_jobs=-1)
+
+  print(scores, scores.mean(), scores.std())
+
   linear_svc.fit(x_train, y_train)
-  y_train_predict = linear_svc.predict(x_train)
-  y_valid_predict = linear_svc.predict(x_valid)
-  print(f1_score(y_valid, y_valid_predict, average='micro'))
+  # y_train_predict = linear_svc.predict(x_train)
+  # y_valid_predict = linear_svc.predict(x_valid)
+  # print(f1_score(y_valid, y_valid_predict, average='micro'))
   predict = linear_svc.predict(test_data)
   # print(mlb.classes_)
 
