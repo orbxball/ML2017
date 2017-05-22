@@ -1,5 +1,6 @@
 import sys, os
 import argparse
+import pickle
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -62,10 +63,6 @@ def main():
 
   ### tokenize
   all_corpus = texts + test_texts
-  # vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=max_fearues_size, sublinear_tf=True)
-  # vectorizer.fit(all_corpus)
-  # sequences = vectorizer.transform(texts)
-  # test_data = vectorizer.transform(test_texts)
   vectorizer = CountVectorizer(stop_words='english', ngram_range=(1, 3), max_features=max_features_size)
   transformer = TfidfTransformer()
   transformer.fit(vectorizer.fit_transform(all_corpus))
@@ -87,6 +84,14 @@ def main():
   linear_svc.fit(x_train, y_train)
   predict = linear_svc.predict(test_data)
   # print(mlb.classes_)
+
+  ### save vectorizer + transformer + linearSVC
+  with open(vectorizer_name, 'wb') as f:
+    pickle.dump(vectorizer, f)
+  with open(transformer_name, 'wb') as f:
+    pickle.dump(transformer, f)
+  with open(linear_svc_name, 'wb') as f:
+    pickle.dump(linear_svc, f)
 
   # Test data
   ensure_dir(output_path)
@@ -118,5 +123,8 @@ if __name__ == '__main__':
   is_valid = args.valid
   valid_size = -400
   max_features_size = 40000
+  vectorizer_name = 'vec'
+  transformer_name = 'trans'
+  linear_svc_name = 'linSVC'
 
   main()
