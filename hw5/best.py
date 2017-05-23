@@ -124,30 +124,16 @@ def main():
   predict3[predict3 >= threshold] = 1
 
 
-  ### RNN 2
-  model = load_model(model_name2, custom_objects={'fmeasure': fmeasure})
-  predict4 = model.predict(sequences_test)
-  predict4[predict4 < threshold] = 0
-  predict4[predict4 >= threshold] = 1
-
-
   ### Voting
-  pred = predict + predict2 + predict3 + predict4
-  check = predict3 + predict4
-  pred[pred < 2] = 0
-  pred[pred > 2] = 1
-  x = np.argwhere(pred == 2)
-  for i, j in x:
-    if check[i, j] == 2:
-      pred[i, j] = 0
-    else:
-      pred[i, j] = 1
+  pred = predict + predict2 + predict3
+  pred[pred < 1.5] = 0
+  pred[pred >= 1.5] = 1
 
 
   # Test data
   ensure_dir(output_path)
   result = []
-  mlb_backup = mlb.inverse_transform(predict4)
+  mlb_backup = mlb.inverse_transform(predict3)
   for i, categories in enumerate(mlb.inverse_transform(pred)):
     ret = []
     if len(categories) == 0:
@@ -183,8 +169,7 @@ if __name__ == '__main__':
   vectorizer_name2 = os.path.join(base_dir, 'vec2')
   linear_svc_name2 = os.path.join(base_dir, 'linSVC2')
   tokenizer_name = os.path.join(base_dir, 'word_index')
-  model_name = os.path.join(base_dir, 'model-6.h5')
-  model_name2 = os.path.join(base_dir, 'model-5.h5')
+  model_name = os.path.join(base_dir, 'model-5.h5')
   threshold = 0.4
 
   main()
