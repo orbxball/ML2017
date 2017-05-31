@@ -4,12 +4,14 @@ import argparse
 import numpy as np
 import pandas as pd
 from keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
-from CFModel import CFModel, DeepModel
+from Model import build_cf_model, build_deep_model, rate
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='HW6: Matrix Factorization')
     parser.add_argument('train', type=str)
     parser.add_argument('test', type=str)
+    parser.add_argument('--dim', type=str, default=120)
     return parser.parse_args()
 
 
@@ -22,6 +24,13 @@ def main(args):
     ratings['Movie_emb_id'] = ratings['MovieID'] - 1
     print('{} ratings loaded.'.format(ratings.shape[0]))
 
+    maximum = {}
+    maximum['max_userid'] = [max_userid]
+    maximum['max_movieid'] = [max_movieid]
+    maximum['dim'] = [DIM]
+    pd.DataFrame(data=maximum).to_csv(MAX_FILE, index=False)
+    print('max info save to {}'.format(MAX_FILE))
+
     ratings = ratings.sample(frac=1)
     Users = ratings['User_emb_id'].values
     print('Users: {}, shape = {}'.format(Users, Users.shape))
@@ -30,7 +39,7 @@ def main(args):
     Ratings = ratings['Rating'].values
     print('Ratings: {}, shape = {}'.format(Ratings, Ratings.shape))
 
-    model = DeepModel(max_userid, max_movieid, DIM)
+    model = build_deep_model(max_userid, max_movieid, DIM)
     model.compile(loss='mse', optimizer='adamax')
 
     callbacks = [EarlyStopping('val_loss', patience=2),
@@ -41,7 +50,13 @@ def main(args):
 if __name__ == '__main__':
     args = parse_args()
 
-    DIM = 120
+    MODEL_DIR = './model'
+    DIM = args.dim
     MODEL_WEIGHTS_FILE = 'weights.h5'
+    MAX_FILE = 'max.csv'
 
+    if not os.path.exists(MODEL_DIR):
+        os.makedirs(MODEL_DIR)
+    MODEL_WEIGHTS_FILE = os.path.join(MODEL_DIR, MODEL_WEIGHTS_FILE)
+    MAX_FILE = os.path.join(MODEL_DIR, MAX_FILE)
     main(args)
