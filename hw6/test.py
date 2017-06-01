@@ -42,7 +42,7 @@ def main(args):
     print('Loading model done!!!')
 
     recommendations = pd.read_csv(TEST_CSV, usecols=['TestDataID'])
-    recommendations['Rating'] = test_data.apply(lambda x: predict_rating(trained_model, x['UserID'], x['MovieID']) * std + mean, axis=1)
+    recommendations['Rating'] = test_data.apply(lambda x: predict_rating(trained_model, x['UserID'], x['MovieID']), axis=1)
     # print(recommendations)
 
     ensure_dir(args.output)
@@ -70,7 +70,5 @@ if __name__ == '__main__':
     DIM = list(info['dim'])[0]
     max_userid = list(info['max_userid'])[0]
     max_movieid = list(info['max_movieid'])[0]
-    mean = list(info['mean'])[0]
-    std = list(info['std'])[0]
 
     main(args)
