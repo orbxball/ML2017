@@ -17,7 +17,7 @@ def parse_args():
 
 
 def rmse(y_true, y_pred):
-    y_pred = K.clip(y_pred, 1., 5.)
+    # y_pred = K.clip(y_pred, 1., 5.)
     return K.sqrt(K.mean(K.square((y_true - y_pred))))
 
 def main(args):
@@ -29,13 +29,6 @@ def main(args):
     ratings['Movie_emb_id'] = ratings['MovieID'] - 1
     print('{} ratings loaded.'.format(ratings.shape[0]))
 
-    maximum = {}
-    maximum['max_userid'] = [max_userid]
-    maximum['max_movieid'] = [max_movieid]
-    maximum['dim'] = [DIM]
-    pd.DataFrame(data=maximum).to_csv(MAX_FILE, index=False)
-    print('max info save to {}'.format(MAX_FILE))
-
     ratings = ratings.sample(frac=1)
     Users = ratings['User_emb_id'].values
     print('Users: {}, shape = {}'.format(Users, Users.shape))
@@ -43,6 +36,18 @@ def main(args):
     print('Movies: {}, shape = {}'.format(Movies, Movies.shape))
     Ratings = ratings['Rating'].values
     print('Ratings: {}, shape = {}'.format(Ratings, Ratings.shape))
+    mean = Ratings.mean()
+    std = Ratings.std()
+    Ratings = (Ratings - mean) / (std + 1e-100)
+
+    maximum = {}
+    maximum['max_userid'] = [max_userid]
+    maximum['max_movieid'] = [max_movieid]
+    maximum['dim'] = [DIM]
+    maximum['mean'] = [mean]
+    maximum['std'] = [std]
+    pd.DataFrame(data=maximum).to_csv(MAX_FILE, index=False)
+    print('max info save to {}'.format(MAX_FILE))
 
     model = build_cf_model(max_userid, max_movieid, DIM)
     model.compile(loss='mse', optimizer='adamax', metrics=[rmse])
