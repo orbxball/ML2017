@@ -9,10 +9,12 @@ def build_cf_model(n_users, n_movies, dim):
     u_input = Input(shape=(1,))
     u = Embedding(n_users, dim, embeddings_regularizer=l2(1e-5))(u_input)
     u = Reshape((dim,))(u)
+    u = Dropout(0.1)(u)
 
     m_input = Input(shape=(1,))
     m = Embedding(n_movies, dim, embeddings_regularizer=l2(1e-5))(m_input)
     m = Reshape((dim,))(m)
+    m = Dropout(0.1)(m)
 
     u_bias = Embedding(n_users, 1, embeddings_regularizer=l2(1e-5))(u_input)
     u_bias = Reshape((1,))(u_bias)

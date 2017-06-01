@@ -12,7 +12,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='HW6: Matrix Factorization')
     parser.add_argument('train', type=str)
     parser.add_argument('test', type=str)
-    parser.add_argument('--dim', type=int, default=120)
+    parser.add_argument('--dim', type=int, default=15)
     return parser.parse_args()
 
 
@@ -49,7 +49,7 @@ def main(args):
 
     callbacks = [EarlyStopping('val_rmse', patience=2),
                  ModelCheckpoint(MODEL_WEIGHTS_FILE, save_best_only=True)]
-    history = model.fit([Users, Movies], Ratings, epochs=100, batch_size=256, validation_split=.1, verbose=1, callbacks=callbacks)
+    history = model.fit([Users, Movies], Ratings, epochs=1000, batch_size=256, validation_split=.1, verbose=1, callbacks=callbacks)
 
 
 if __name__ == '__main__':
