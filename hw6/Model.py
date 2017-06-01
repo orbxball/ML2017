@@ -31,7 +31,7 @@ def build_deep_model(n_users, n_movies, dim, dropout=0.1):
     out = Dropout(dropout)(out)
     out = Dense(dim, activation='relu')(out)
     out = Dropout(dropout)(out)
-    out = Dense(1, activation='linear')(out)
+    out = Dense(1, activation='relu')(out)
 
     model = Model(inputs=[u_input, m_input], outputs=out)
     return model

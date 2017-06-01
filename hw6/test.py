@@ -36,7 +36,7 @@ def main(args):
     test_data = pd.read_csv(TEST_CSV, usecols=['UserID', 'MovieID'])
     print('{} testing data loaded.'.format(test_data.shape[0]))
 
-    trained_model = build_deep_model(max_userid, max_movieid, DIM)
+    trained_model = build_cf_model(max_userid, max_movieid, DIM)
     print('Loading model weights...')
     trained_model.load_weights(MODEL_WEIGHTS_FILE)
     print('Loading model done!!!')

@@ -3,6 +3,7 @@ import sys
 import argparse
 import numpy as np
 import pandas as pd
+from keras import backend as K
 from keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from Model import build_cf_model, build_deep_model, rate
 
@@ -11,9 +12,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description='HW6: Matrix Factorization')
     parser.add_argument('train', type=str)
     parser.add_argument('test', type=str)
-    parser.add_argument('--dim', type=str, default=120)
+    parser.add_argument('--dim', type=int, default=120)
     return parser.parse_args()
 
+
+def rmse(y_true, y_pred):
+    y_pred = K.clip(y_pred, 1., 5.)
+    return K.sqrt(K.mean(K.square((y_true - y_pred))))
 
 def main(args):
     ratings = pd.read_csv(args.train,
@@ -39,12 +44,12 @@ def main(args):
     Ratings = ratings['Rating'].values
     print('Ratings: {}, shape = {}'.format(Ratings, Ratings.shape))
 
-    model = build_deep_model(max_userid, max_movieid, DIM)
-    model.compile(loss='mse', optimizer='adamax')
+    model = build_cf_model(max_userid, max_movieid, DIM)
+    model.compile(loss='mse', optimizer='adamax', metrics=[rmse])
 
-    callbacks = [EarlyStopping('val_loss', patience=2),
+    callbacks = [EarlyStopping('val_rmse', patience=2),
                  ModelCheckpoint(MODEL_WEIGHTS_FILE, save_best_only=True)]
-    history = model.fit([Users, Movies], Ratings, epochs=100, validation_split=.1, verbose=1, callbacks=callbacks)
+    history = model.fit([Users, Movies], Ratings, epochs=100, batch_size=256, validation_split=.1, verbose=1, callbacks=callbacks)
 
 
 if __name__ == '__main__':
