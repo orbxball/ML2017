@@ -1,6 +1,6 @@
 import numpy as np
 from keras.layers import Input, Embedding, Reshape, Dense, Dropout
-from keras.layers.merge import concatenate, dot
+from keras.layers.merge import concatenate, dot, add
 from keras.models import Model
 
 def build_cf_model(n_users, n_movies, dim):
@@ -12,7 +12,13 @@ def build_cf_model(n_users, n_movies, dim):
     m = Embedding(n_movies, dim)(m_input)
     m = Reshape((dim,))(m)
 
+    u_bias = Embedding(n_users, 1)(u_input)
+    u_bias = Reshape((1,))(u_bias)
+    m_bias = Embedding(n_movies, 1)(m_input)
+    m_bias = Reshape((1,))(m_bias)
+
     out = dot([u, m], -1)
+    out = add([out, u_bias, m_bias])
 
     model = Model(inputs=[u_input, m_input], outputs=out)
     return model
