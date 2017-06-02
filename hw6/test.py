@@ -57,7 +57,7 @@ if __name__ == '__main__':
     TEST_CSV = 'test.csv'
     USERS_CSV = 'users.csv'
     MOVIES_CSV = 'movies.csv'
-    MODEL_WEIGHTS_FILE = 'weights.h5'
+    MODEL_WEIGHTS_FILE = 'weights_cf_bias.h5'
 
     DATA_DIR = args.data_dir
     TEST_CSV = os.path.join(DATA_DIR, TEST_CSV)
