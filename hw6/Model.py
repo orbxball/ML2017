@@ -1,5 +1,6 @@
 import numpy as np
-from keras.layers import Input, Embedding, Reshape, Dense, Dropout, Lambda
+from keras.layers import Input, Embedding, Dense, Dropout
+from keras.layers import Reshape, Flatten, Lambda
 from keras.layers.merge import concatenate, dot, add
 from keras.models import Model
 from keras import backend as K
@@ -43,18 +44,26 @@ def build_cf_model(n_users, n_movies, dim, isBest=False):
 
 
 def build_deep_model(n_users, n_movies, dim, dropout=0.1):
-    u_input = Input(shape=(1,))
+    u_input = Input(shape=(4,))
     u = Embedding(n_users, dim)(u_input)
-    u = Reshape((dim,))(u)
+    # u = Reshape((dim,))(u)
+    u = Flatten()(u)
 
-    m_input = Input(shape=(1,))
+    m_input = Input(shape=(19,))
     m = Embedding(n_movies, dim)(m_input)
-    m = Reshape((dim,))(m)
+    # m = Reshape((dim,))(m)
+    m = Flatten()(m)
 
     out = concatenate([u, m])
     out = Dropout(dropout)(out)
-    out = Dense(dim, activation='relu')(out)
+    out = Dense(256, activation='relu')(out)
     out = Dropout(dropout)(out)
+    out = Dense(128, activation='relu')(out)
+    out = Dropout(dropout)(out)
+    out = Dense(64, activation='relu')(out)
+    out = Dropout(0.15)(out)
+    out = Dense(dim, activation='relu')(out)
+    out = Dropout(0.2)(out)
     out = Dense(1, activation='relu')(out)
 
     model = Model(inputs=[u_input, m_input], outputs=out)
