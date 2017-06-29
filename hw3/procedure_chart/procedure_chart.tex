@@ -1,0 +1,61 @@
+% xelatex {filename} && convert -density 300 {pdf name} -quality 90 {png name}
+\documentclass[convert={density=300,size=1080x800,outext=.png}]{standalone}
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\begin{document}
+\begin{tikzpicture}
+
+	\begin{axis}[
+		xlabel={Epoch},
+		ylabel={Accuracy},
+		legend entries={Training Accuracy, Valid Accuracy},
+		legend style={fill=none},
+		legend pos=south east,
+		%xtick={0,50,...,300},
+		%ytick={0,0.1,...,1.0},
+		tick pos=left
+	]
+		\addplot table [
+			col sep=comma,
+			mark=none,
+			x=epoch,
+			y=acc,
+		] {cnn_log.csv};
+		\addplot table [
+			col sep=comma,
+			mark=none,
+			x=epoch,
+			y=vacc,
+		] {cnn_log.csv};
+	\end{axis}
+
+\end{tikzpicture}
+\begin{tikzpicture}
+
+	\begin{axis}[
+		xlabel={Epoch},
+		ylabel={Loss Rate},
+		legend entries={Training Loss, Valid Loss},
+		legend style={fill=none},
+		legend pos=north east,
+		%xtick={0,50,...,300},
+		%ytick={0,0.1,...,1.0},
+		tick pos=left
+	]
+		\addplot table [
+			col sep=comma,
+			mark=none,
+			x=epoch,
+			y=loss,
+		] {cnn_log.csv};
+		\addplot table [
+			col sep=comma,
+			mark=none,
+			x=epoch,
+			y=vloss,
+		] {cnn_log.csv};
+	\end{axis}
+
+\end{tikzpicture}
+\end{document}
