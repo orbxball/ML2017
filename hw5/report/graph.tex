@@ -1,0 +1,90 @@
+\documentclass{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\title{\vspace{-3em} Mahcine Learning 2017: Homework 5}
+\author{Jun-You Liu (B03502040)}
+\date{\today}
+
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{tikz,pgfplots}
+\usepackage[colorlinks=true]{hyperref}
+
+\definecolor{butter1}{rgb}{0.988,0.914,0.310}
+\definecolor{chocolate1}{rgb}{0.914,0.725,0.431}
+\definecolor{chameleon1}{rgb}{0.541,0.886,0.204}
+\definecolor{skyblue1}{rgb}{0.447,0.624,0.812}
+\definecolor{plum1}{rgb}{0.678,0.498,0.659}
+\definecolor{scarletred1}{rgb}{0.937,0.161,0.161}
+
+\makeatletter
+\newcommand\footnoteref[1]{\protected@xdef\@thefnmark{\ref{#1}}\@footnotemark}
+\makeatother
+
+\begin{document}
+
+\maketitle
+\vspace{-1em}
+
+\section{Tags distribution graph}
+
+\begin{tikzpicture}
+      \begin{axis}[
+          ybar,
+            ymin=0,
+            symbolic x coords={{FICTION}, {SPECULATIVE-FICTION}, {NOVEL}, {SCIENCE-FICTION}, {CHILDREN'S-LITERATURE}, {FANTASY}, {MYSTERY}, {CRIME-FICTION}, {SUSPENSE}, {YOUNG-ADULT-LITERATURE}, {THRILLER}, {HISTORICAL-NOVEL}, {HORROR}, {DETECTIVE-FICTION}, {ROMANCE-NOVEL}, {HISTORICAL-FICTION}, {ADVENTURE-NOVEL}, {NON-FICTION}, {SPY-FICTION}, {ALTERNATE-HISTORY}, {COMEDY}, {AUTOBIOGRAPHY}, {BIOGRAPHY}, {SHORT-STORY}, {HISTORY}, {COMIC-NOVEL}, {MEMOIR}, {SATIRE}, {AUTOBIOGRAPHICAL-NOVEL}, {WAR-NOVEL}, {DYSTOPIA}, {NOVELLA}, {HUMOUR}, {TECHNO-THRILLER}, {HIGH-FANTASY}, {APOCALYPTIC-AND-POST-APOCALYPTIC-FICTION}, {GOTHIC-FICTION}, {UTOPIAN-AND-DYSTOPIAN-FICTION}},
+          xtick=data,
+            x=11pt,
+            x tick label style={rotate=30, anchor=north east, inner sep=0mm, font=\tiny},
+            x tick style={draw=none},
+            nodes near coords,
+      every node near coord/.append style={font=\tiny},
+            enlarge x limits=0.05,
+            bar width=7pt
+        ]
+        \addplot[ybar,fill=chocolate1] coordinates {
+            ({ADVENTURE-NOVEL},109)
+            ({ALTERNATE-HISTORY},72)
+            ({APOCALYPTIC-AND-POST-APOCALYPTIC-FICTION},14)
+            ({AUTOBIOGRAPHICAL-NOVEL},31)
+            ({AUTOBIOGRAPHY},51)
+            ({BIOGRAPHY},42)
+            ({CHILDREN'S-LITERATURE},777)
+            ({COMEDY},59)
+            ({COMIC-NOVEL},37)
+            ({CRIME-FICTION},368)
+            ({DETECTIVE-FICTION},178)
+            ({DYSTOPIA},30)
+            ({FANTASY},773)
+            ({FICTION},1672)
+            ({GOTHIC-FICTION},12)
+            ({HIGH-FANTASY},15)
+            ({HISTORICAL-FICTION},137)
+            ({HISTORICAL-NOVEL},222)
+            ({HISTORY},40)
+            ({HORROR},192)
+            ({HUMOUR},18)
+            ({MEMOIR},35)
+            ({MYSTERY},642)
+            ({NON-FICTION},102)
+            ({NOVEL},992)
+            ({NOVELLA},29)
+            ({ROMANCE-NOVEL},157)
+            ({SATIRE},35)
+            ({SCIENCE-FICTION},959)
+            ({SHORT-STORY},41)
+            ({SPECULATIVE-FICTION},1448)
+            ({SPY-FICTION},75)
+            ({SUSPENSE},318)
+            ({TECHNO-THRILLER},18)
+            ({THRILLER},243)
+            ({UTOPIAN-AND-DYSTOPIAN-FICTION},11)
+            ({WAR-NOVEL},31)
+            ({YOUNG-ADULT-LITERATURE},288)
+        };
+      \end{axis}
+\end{tikzpicture}
+
+\end{document}
