@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>PumpItUp</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<style type="text/css">
+			.reveal table td {
+				text-align: center;
+			}
+			.reveal ul li i {
+				font-size: 35px;
+				color: gray;
+			}
+		</style>
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>Pump It Up <br/>Data Mining the Water Table</h2>
+					<h2><small>ML2017 Final Project</small></h2>
+					<br/>
+					<table style="font-size: 24px">
+						<tr>
+							<td>劉君猷<br/>b03502040</td>
+							<td>宋子維<br/>b03902042</td>
+							<td>林義聖<br/>b03902048</td>
+							<td>江廷睿<br/>b03902072</td>
+						</tr>
+						<tr>
+							<td colspan="4">
+								<del>電資學院ML代表之在座的各位都是機器學習型男與他的好朋友
+								</del>
+								<br/>
+								我會Google我是資優生
+							</td>
+						</tr>
+					</table>
+					<aside class="notes">
+						大家好，我們這組是"電資學院ML代表之在座的各位都是機器學習型男與他的好朋友"，但名字這麼長，大家一定記不起來，所以我們有個比較短的名字，就是"我會google我是資優生"，而我們做的題目是Pump It Up。希望等等的分享可以讓大家在ML2017finalGo一波！
+					</aside>
+				</section>
+				<section>
+					<h2>Outline</h2>
+					<ul>
+						<li>Data Visulization</li>
+						<li>Model architecture</li>
+						<li>Feature Engineering</li>
+						<li>Ensemble</li>
+						<li>Sharing</li>
+						<li>QAQ</li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h2>Data Visualization</h2>
+					</section>
+					<section>
+						<img style="box-shadow: none; border-style: none;" src="image/map.png" width="70%">
+
+						<aside class="notes">
+							先講解圖是啥
+							對，所以我們看完後，就先隨便Boost了一下，想當然爾效果很爛，所以只好捲起袖子開心幹了。
+						</aside>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Model Architecture</h2>
+						<p><del>YKBoost</del></p>
+						<p>XGBoost</p>
+					</section>
+					<section>
+						<h2>XGBoost</h2>
+						<pre><code class="python">pip install xgboost</code></pre>
+						<pre><code class="python">import xgboost as xgb
+# read in data
+dtrain = xgb.DMatrix('demo/data/agaricus.txt.train')
+dtest = xgb.DMatrix('demo/data/agaricus.txt.test')
+# specify parameters via map
+param = {'max_depth': 2,
+	 'eta': 1,
+	 'silent': 1,
+	 'objective': 'binary:logistic' }
+num_round = 2
+bst = xgb.train(param, dtrain, num_round)
+# make prediction
+preds = bst.predict(dtest)</code></pre>
+					</section>
+					<section>
+						<h2>XGBoost</h2>
+						<p><a href="http://xgboost.readthedocs.io/en/latest/model.html" target="_blank"><img style="box-shadow: none; border-style: none;" src="image/xgboost.png" width="800px"></a></p>
+						<aside class="notes">
+							偷偷小爆料一下，這個套件是我老闆contribute的，我想大家應該也能猜到他是誰，沒錯，就是Andy，Andy Is My Boss。不過這個套件documentation其實寫的有點爛，所以大家如果要使用時可能要多花點時間，Andy以為他是在造福他的子民，其實讓人看得很辛苦，真的很雷穖，就是又雷又機掰的意思。
+						</aside>
+					</section>
+					<section>
+						<img style="box-shadow: none; border-style: none;" src="image/iteration.png">
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Feature Engineering</h2>
+					</section>
+					<section>
+						<ul>
+							<li><i>constuction_year</i> and <i>gps_height</i>: use median to replace to the 0 values</li>
+							<li>Drop
+								<i>num_private</i>,
+								<i>recorded_by</i>,
+								<i>wpt_name</i>,
+								<i>extraction_type_group</i>,
+								<i>extraction_type</i>,
+								<i>payment_type</i>,
+            					<i>water_quality</i>,
+            					<i>scheme_management</i>,
+            					<i>district_code</i>,
+            					<i>region</i>,
+            					<i>region_code</i>,
+            					<i>subvillage</i>,
+            					<i>ward</i>,
+            					<i>waterpoint_type_group</i>,
+            					<i>quantity_group</i>,
+            					<i>installer</i></li>
+            				<li>pd.get_dummies()</li>
+						</ul>
+						<aside class="notes">
+							...至於丟掉的features，不是重複就是missing value很多，所以果斷拿掉。
+						</aside>
+					</section>
+					<section>
+						<img style="box-shadow: none; border-style: none;" src="image/importance.png">
+					</section>
+					<section>
+						<ul>
+							<li>latitude: -2e-8</li>
+							<li>longitude: 0</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Ensemble</h2>
+						<p>A lot of XGBoosts</p>
+					</section>
+					<section>
+						<ul>
+							<li>change random seed</li>
+							<li>majority voting between these xgboost models</li>
+							<br/>
+							<!-- <li>Using cross validation to split data</li> -->
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Sharing</h2>
+						<p>Discussion page on Driven Data</p>
+					</section>
+					<section>
+						<img style="box-shadow: none; border-style: none;" src="image/discussion.png">
+					</section>
+					<section>
+						<img style="box-shadow: none; border-style: none;" src="image/forum.png">
+					</section>
+				</section>
+				<section>
+					<h2>QAQ?</h2>
+                    <p>Questions and Questions?</p>
+                    <aside class="notes">
+						謝謝大家，期待等等會有好好吃的章魚燒，這樣大家就不用去活大餐廳吃到吐了！
+					</aside>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				math: {
+						mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+						config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+					},
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/math/math.js', async: true },
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
